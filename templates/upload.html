@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Audio Files</title>
+</head>
+ <!-- Required meta tags -->
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+ <!-- Bootstrap CSS -->
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+<!-- As a link -->
+<nav class="navbar navbar-dark bg-primary">
+    <a class="navbar-brand" href="/">
+        Audio Checker 
+    </a>
+  </nav>
+<body>
+    <h1>
+        Upload Audio Files
+    </h1>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <label for="audioFiles">Select audio files to upload:</label>
+    </br>
+        <input type="file" id="audioFiles" name="audioFiles" accept="audio/*" multiple>
+        <button type="submit" class="btn btn-success">Upload</button>
+    </form>
+    <h1>Uploaded Audio Files</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Extension</th>
+                <th>Upload Date</th>
+                <th>Play</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+            <tr>
+                <td>{{ file.id }}</td>
+                <td>{{ file.filename }}</td>
+                <td>{{ file.extension }}</td>
+                <td>{{ file.upload_date }}</td>
+                <td>
+                    <audio controls>
+                        <source src="{{ url_for('static', filename='uploads/' + file.filename) }}" type="audio/{{ file.extension[1:] }}">
+                        Your browser does not support the audio element.
+                    </audio>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
