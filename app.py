@@ -1,6 +1,11 @@
 # Audio checking app interface built using Flask by Saksham Sharma (sakshamsahore@gmail.com)
 
-# Used flask for backend, SQLAlchemy for managing database with SQLite database, mutagen for handling mp3 audio file duration and pydub for other extentions
+""" 
+Used flask API for backend, SQLAlchemy for managing database with SQLite database, 
+mutagen for handling mp3 audio file duration and pydub for other extentions of files.
+A tabular representation of the uploaded audio files is shown along with other details such as 
+date and time, name, id and extension.
+"""
 
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
@@ -11,35 +16,41 @@ from pydub import AudioSegment
 from mutagen.mp3 import HeaderNotFoundError
 from pydub.exceptions import CouldntDecodeError
 
-# Initializing a SQLite database for storing audio file name, extension, date and time of upload
 app = Flask(__name__)
+
+# Initializing a SQLite database for storing audio file name, extension, date and time of upload
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///audio_files.db'
 db = SQLAlchemy(app) # Creating database as db 
-app.app_context().push()
+app.app_context().push() # push a context manually since you have direct access to the app 
 
 # Creating the database model for aduio_files.db with following columns
 class AudioFile(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(255), nullable=False) # Cannot contain null value
-    extension = db.Column(db.String(10), nullable=False) # Cannot contain null value
+    id = db.Column(db.Integer, primary_key=True) # unique key for every audio file 
+    filename = db.Column(db.String(255), nullable=False) # Audio file name, Cannot contain null value
+    extension = db.Column(db.String(10), nullable=False) # Extension type, Cannot contain null value
     upload_date = db.Column(db.DateTime, default=datetime.datetime.utcnow) # Automatically stores the universal time coordinates of the time and date of upload
 
 # To check if the length of the audio files exceeds 10 minutes, creating a function using mutagen library
 def get_audio_duration(audio_path, extension):
     try:
+        # if the file type in .mp3
         if extension.lower() == '.mp3':
             audio = MP3(audio_path)
             audio_duration = datetime.timedelta(seconds=audio.info.length)
+        # any other file type
         else:
             audio = AudioSegment.from_file(audio_path)
             audio_duration = datetime.timedelta(milliseconds=len(audio))
         
         return audio_duration
+    # Handling exception
     except (HeaderNotFoundError, CouldntDecodeError):
         raise Exception("Error reading audio file")
 
-# Home page route to allow user to upload single or multiple audio files 
-# and show the uploaded files in the database in a tabular form
+"""
+Home page route to allow user to upload single or multiple audio files 
+and show the uploaded files in the database in a tabular form
+"""
 @app.route('/', methods=['GET', 'POST'])
 def upload_files():
     if request.method == 'POST':
@@ -59,7 +70,7 @@ def upload_files():
                 upload_path = os.path.join('static/uploads', filename)
                 uploaded_file.save(upload_path)
                 
-                # Handling the error 
+                # Handling the exception 
                 try:
                     audio_duration = get_audio_duration(upload_path, extension)  # Pass the extension here
                     if audio_duration > datetime.timedelta(minutes=10):
