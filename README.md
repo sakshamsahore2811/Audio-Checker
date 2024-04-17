@@ -1,4 +1,4 @@
-# Audio Checker
+# Audio House
 
 ## Description
 - This project gives a choice for the end-user to upload single or multiple audio files. The extension of the files is not fixed. 
